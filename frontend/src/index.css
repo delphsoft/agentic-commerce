@@ -1,0 +1,36 @@
+:root {
+  --bg: #0D0F0E;
+  --surf: #161A18;
+  --surf2: #1E2420;
+  --card: #1A1F1C;
+  --acc: #00E87A;
+  --acc2: #00B85F;
+  --text: #F2EDE4;
+  --muted: #8A9490;
+  --border: #2A302D;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes flash { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+@keyframes spin { to{transform:rotate(360deg)} }
