@@ -1,36 +1,39 @@
-export default function Navbar({ cartCount, onOpenCart }) {
+export default function Navbar({ cartCount, onOpenCart, productCount = 1284, storeCount = 8 }) {
   return (
     <nav style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '12px 20px', borderBottom: '1px solid var(--border)',
-      background: 'var(--bg)', position: 'sticky', top: 0, zIndex: 50,
+      padding: '14px 28px', background: 'var(--bg)',
+      position: 'sticky', top: 0, zIndex: 50,
     }}>
       <div style={{
-        fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16,
-        display: 'flex', alignItems: 'center', gap: 7,
+        fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20,
+        display: 'flex', alignItems: 'center', gap: 2, color: 'var(--text)',
       }}>
-        <span style={{
-          width: 7, height: 7, borderRadius: '50%', background: 'var(--acc)',
-          display: 'inline-block', animation: 'pulse 2s infinite',
-        }} />
         AgentShop
+        <span style={{ color: 'var(--acc)', fontSize: 22, lineHeight: 1 }}>.</span>
       </div>
-      <button onClick={onOpenCart} style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        background: 'var(--surf)', border: '1px solid var(--border)',
-        borderRadius: 20, padding: '6px 14px', fontSize: 12,
-        cursor: 'pointer', color: 'var(--text)',
-      }}>
-        <i className="ti ti-shopping-cart" aria-hidden="true" />
-        Carrito
-        <span style={{
-          background: cartCount > 0 ? 'var(--acc)' : 'var(--border)',
-          color: cartCount > 0 ? '#fff' : 'var(--muted)',
-          fontSize: 10, fontWeight: 700, borderRadius: '50%',
-          width: 18, height: 18, display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center',
-        }}>{cartCount}</span>
-      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 400 }}>
+          {storeCount} tiendas · {productCount.toLocaleString('es-AR')} productos
+        </span>
+        <button onClick={onOpenCart} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--text)', position: 'relative', padding: 4,
+          display: 'flex', alignItems: 'center',
+        }}>
+          <i className="ti ti-shopping-cart" style={{ fontSize: 22 }} aria-hidden="true" />
+          {cartCount > 0 && (
+            <span style={{
+              position: 'absolute', top: 0, right: 0,
+              background: 'var(--acc)', color: '#fff',
+              fontSize: 9, fontWeight: 700, borderRadius: '50%',
+              width: 16, height: 16, display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+            }}>{cartCount}</span>
+          )}
+        </button>
+      </div>
     </nav>
   )
 }

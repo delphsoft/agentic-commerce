@@ -1,46 +1,137 @@
 import { useState } from 'react'
 import { SRC, CAT_EMOJI, MOCK_MAS_BUSCADOS, MOCK_RECENT_OFFERS, MOCK_TOP_CATS, GUIDE_TIPS } from '../data/mock'
 
-function fmt(n) { return 'ARS $' + Math.round(n).toLocaleString('es-AR') }
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-AR') }
 
-const STRIP_STYLE = {
-  display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4,
-}
-
-/* ── Helpers ── */
-function SectionHeader({ title, right }) {
+function ImgPlaceholder({ emoji, size = 80 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
-      <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13 }}>{title}</h2>
-      <span style={{ fontSize: 11, color: 'var(--muted)' }}>{right}</span>
+    <div style={{
+      width: '100%', aspectRatio: '1', background: '#f0f0f3',
+      borderRadius: 10, display: 'flex', alignItems: 'center',
+      justifyContent: 'center', marginBottom: 12,
+    }}>
+      <div style={{
+        width: size, height: size, background: '#e4e4ea',
+        borderRadius: 8, display: 'flex', alignItems: 'center',
+        justifyContent: 'center', fontSize: size * 0.4,
+      }}>{emoji || '📦'}</div>
     </div>
   )
 }
 
-function SrcBadge({ src, size = 9 }) {
-  const s = SRC[src] || { label: src, bg: '#444', tc: '#fff' }
-  return <span style={{ background: s.bg, color: s.tc, fontSize: size, fontWeight: 700, borderRadius: 4, padding: '1px 5px' }}>{s.label}</span>
+function SrcBadge({ src, size = 10 }) {
+  const s = SRC[src] || { label: src?.toUpperCase(), bg: '#444', tc: '#fff' }
+  return (
+    <span style={{
+      background: s.bg, color: s.tc, fontSize: size, fontWeight: 700,
+      borderRadius: 6, padding: '2px 7px', display: 'inline-block',
+    }}>{s.label}</span>
+  )
+}
+
+function SectionHeader({ title, right }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
+      <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--text)' }}>{title}</h2>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{right}</span>
+    </div>
+  )
+}
+
+/* ── FILTERS ── */
+export function Filters({ activeCat, onSetCat }) {
+  const CATS = [
+    { key: 'todos', label: 'Todos' },
+    { key: 'electronica', label: 'Electrónica' },
+    { key: 'celulares', label: 'Celulares' },
+    { key: 'hogar', label: 'Hogar' },
+    { key: 'moda', label: 'Moda' },
+    { key: 'computacion', label: 'Computación' },
+  ]
+  return (
+    <div style={{ padding: '0 28px 20px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {CATS.map(c => {
+        const active = activeCat === c.key
+        return (
+          <button key={c.key} onClick={() => onSetCat(c.key)} style={{
+            background: active ? '#1d1d1f' : 'var(--surf)',
+            color: active ? '#fff' : 'var(--text)',
+            border: active ? 'none' : '1px solid var(--border)',
+            borderRadius: 'var(--radius-pill)', padding: '8px 18px',
+            fontSize: 13, fontWeight: active ? 600 : 400,
+            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+          }}>{c.label}</button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ── AGENT BAR ── */
+export function AgentBar({ message }) {
+  return (
+    <div style={{
+      margin: '0 28px 24px',
+      background: 'var(--surf)', border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-lg)', padding: '12px 16px',
+      display: 'flex', gap: 12, alignItems: 'center',
+    }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+        background: 'var(--acc)', display: 'flex', alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <i className="ti ti-sparkles" style={{ color: '#fff', fontSize: 16 }} aria-hidden="true" />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{
+              width: 5, height: 5, borderRadius: '50%', background: 'var(--acc)',
+              animation: `dots 1.4s ${i * 0.2}s infinite`,
+            }} />
+          ))}
+        </span>
+        <span style={{ fontSize: 13, color: 'var(--text)' }}>
+          <strong>Agente</strong> · {message}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 /* ── MÁS BUSCADOS ── */
 export function MasBuscados({ onSelect }) {
-  const RANK_COLORS = ['#F0A500', '#B0B0B0', '#8B5E3C', 'var(--muted)', 'var(--muted)']
   return (
-    <div style={{ padding: '0 20px 20px' }}>
-      <SectionHeader title="🔍 Más buscados hoy" right="Actualizado hace 12 min" />
-      <div style={STRIP_STYLE}>
+    <div style={{ padding: '0 28px 32px' }}>
+      <SectionHeader title="Más buscados hoy" right="Actualizado hace 12 min" />
+      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
         {MOCK_MAS_BUSCADOS.map(p => (
           <div key={p.id} onClick={() => onSelect(p.id)} style={{
-            background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10,
-            padding: '10px 12px', minWidth: 150, maxWidth: 150, cursor: 'pointer', flexShrink: 0,
-          }}>
-            <div style={{ fontSize: 9, color: RANK_COLORS[p.rank - 1], marginBottom: 4 }}>#{p.rank} más buscado</div>
-            <div style={{ fontSize: 24, marginBottom: 5 }}>{p.emoji}</div>
-            <div style={{ fontSize: 11, fontWeight: 500, lineHeight: 1.3, marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.title}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)', padding: 14,
+            minWidth: 200, maxWidth: 200, cursor: 'pointer', flexShrink: 0,
+            transition: 'box-shadow .15s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.08)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+          >
+            {/* Top row: rank + badge */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{
+                background: '#1d1d1f', color: '#fff',
+                fontSize: 11, fontWeight: 700, borderRadius: 6,
+                padding: '2px 8px',
+              }}>{p.rank}</span>
               <SrcBadge src={p.src} />
-              <span style={{ fontSize: 9, color: 'var(--muted)' }}>{p.searches}</span>
+            </div>
+            {/* Image placeholder */}
+            <ImgPlaceholder emoji={p.emoji} size={64} />
+            <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 6, color: 'var(--text)' }}>{p.title}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <i className="ti ti-search" style={{ fontSize: 11 }} aria-hidden="true" />
+              {p.searches} búsquedas
             </div>
           </div>
         ))}
@@ -52,25 +143,33 @@ export function MasBuscados({ onSelect }) {
 /* ── OFERTAS RECIENTES ── */
 export function OfertasRecientes({ onSelect }) {
   return (
-    <div style={{ padding: '0 20px 20px' }}>
-      <SectionHeader title="🔥 Puestos en oferta recientemente" right="Últimas 24hs" />
-      <div style={STRIP_STYLE}>
+    <div style={{ padding: '0 28px 32px' }}>
+      <SectionHeader title="Puestos en oferta" right="Bajaron de precio hoy" />
+      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
         {MOCK_RECENT_OFFERS.map(o => (
           <div key={o.id} onClick={() => onSelect(o.id)} style={{
-            background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10,
-            padding: '10px 12px', minWidth: 155, maxWidth: 155, cursor: 'pointer', flexShrink: 0,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)', padding: 14,
+            minWidth: 210, maxWidth: 210, cursor: 'pointer', flexShrink: 0,
+            transition: 'box-shadow .15s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.08)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <SrcBadge src={o.src} />
-              <span style={{ fontSize: 9, color: '#E8002D', fontWeight: 700, background: 'rgba(232,0,45,.1)', border: '1px solid rgba(232,0,45,.2)', borderRadius: 4, padding: '1px 5px' }}>-{o.disc}%</span>
+              <span style={{
+                background: '#1a9e4a', color: '#fff',
+                fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '2px 8px',
+              }}>-{o.disc}%</span>
             </div>
-            <div style={{ fontSize: 24, marginBottom: 4 }}>{o.emoji}</div>
-            <div style={{ fontSize: 11, fontWeight: 500, lineHeight: 1.3, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{o.title}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginBottom: 3 }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700 }}>{fmt(o.price)}</span>
-              <span style={{ fontSize: 10, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(o.oldPrice)}</span>
+            <ImgPlaceholder emoji={o.emoji} size={56} />
+            <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 8, color: 'var(--text)' }}>{o.title}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>{fmt(o.price)}</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(o.oldPrice)}</span>
             </div>
-            <div style={{ fontSize: 9, color: 'var(--muted)' }}>{o.when}</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)' }}>{o.when}</div>
           </div>
         ))}
       </div>
@@ -82,118 +181,102 @@ export function OfertasRecientes({ onSelect }) {
 export function TopCategoria({ onSelect }) {
   const [cat, setCat] = useState('electronica')
   const CATS = { electronica: 'Electrónica', hogar: 'Hogar', moda: 'Moda' }
-  const RANK_CL = [{ bg: '#F0A500', tc: '#000' }, { bg: '#B0B0B0', tc: '#000' }, { bg: '#8B5E3C', tc: '#fff' }]
+  const RANK_STYLE = [
+    { bg: '#F0A500', tc: '#000' },
+    { bg: '#9ca3af', tc: '#000' },
+    { bg: '#92745a', tc: '#fff' },
+  ]
   const items = MOCK_TOP_CATS[cat] || []
 
   return (
-    <div style={{ padding: '0 20px 20px' }}>
-      <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13 }}>
-            📊 Lo más vendido · <span style={{ color: 'var(--acc)' }}>{CATS[cat]}</span>
-          </h3>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {Object.entries(CATS).map(([key, label]) => (
-              <button key={key} onClick={() => setCat(key)} style={{
-                background: 'none', border: `1px solid ${cat === key ? 'var(--acc)' : 'var(--border)'}`,
-                borderRadius: 20, padding: '3px 9px', fontSize: 10,
-                color: cat === key ? 'var(--acc)' : 'var(--muted)',
-                background: cat === key ? 'rgba(79,70,229,.1)' : 'none', cursor: 'pointer',
-              }}>{label}</button>
-            ))}
-          </div>
+    <div style={{ padding: '0 28px 32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20 }}>
+          Lo más vendido · <span style={{ color: 'var(--acc)' }}>{CATS[cat]}</span>
+        </h2>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {Object.entries(CATS).map(([key, label]) => (
+            <button key={key} onClick={() => setCat(key)} style={{
+              background: cat === key ? '#1d1d1f' : 'var(--surf)',
+              color: cat === key ? '#fff' : 'var(--text)',
+              border: cat === key ? 'none' : '1px solid var(--border)',
+              borderRadius: 'var(--radius-pill)', padding: '5px 14px',
+              fontSize: 12, fontWeight: cat === key ? 600 : 400,
+              cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            }}>{label}</button>
+          ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1px', background: 'var(--border)' }}>
-          {items.map((p, i) => {
-            const rc = RANK_CL[i] || { bg: 'var(--surf2)', tc: 'var(--muted)' }
-            return (
-              <div key={i} onClick={() => onSelect(p.id)} style={{ background: 'var(--card)', padding: '10px 11px', cursor: 'pointer' }}>
-                <div style={{ width: 15, height: 15, borderRadius: '50%', background: rc.bg, color: rc.tc, fontSize: 9, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>{p.rank}</div>
-                <div style={{ fontSize: 20, marginBottom: 4 }}>{p.emoji}</div>
-                <div style={{ fontSize: 10, fontWeight: 500, lineHeight: 1.3, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.title}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{fmt(p.price)}</div>
-                <div style={{ fontSize: 9, color: 'var(--muted)' }}>{p.meta} · <SrcBadge src={p.src} size={8} /></div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+        {items.map((p, i) => {
+          const rc = RANK_STYLE[i] || { bg: '#e5e5ea', tc: '#666' }
+          return (
+            <div key={i} onClick={() => onSelect(p.id)} style={{
+              background: 'var(--card)', border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)', padding: 14, cursor: 'pointer',
+              transition: 'box-shadow .15s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.08)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{
+                  background: rc.bg, color: rc.tc, fontSize: 11, fontWeight: 700,
+                  borderRadius: 6, padding: '2px 8px',
+                }}>#{p.rank}</span>
+                <SrcBadge src={p.src} />
               </div>
-            )
-          })}
-        </div>
+              <ImgPlaceholder emoji={p.emoji} size={56} />
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{p.title}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.meta}</div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
 }
 
-/* ── GUÍA DE BÚSQUEDA ── */
+/* ── GUÍA ── */
 export function GuiaBusqueda({ onSearch }) {
   const [guideQ, setGuideQ] = useState('')
   return (
-    <div style={{ padding: '0 20px 20px' }}>
-      <SectionHeader title="💡 Cómo buscar mejor" right="Tips del agente" />
-      <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, marginBottom: 3 }}>El agente entiende lenguaje natural</div>
-          <div style={{ fontSize: 11, color: 'var(--muted)' }}>No hace falta saber el modelo exacto. Describí lo que necesitás.</div>
-        </div>
+    <div style={{ padding: '0 28px 32px' }}>
+      <SectionHeader title="Cómo pedirle al agente" right="" />
+      <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'var(--border)' }}>
           {GUIDE_TIPS.map((tip, i) => (
-            <div key={i} style={{ background: 'var(--card)', padding: '12px 14px' }}>
-              <div style={{ fontSize: 18, marginBottom: 6 }}>{tip.ico}</div>
-              <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 4 }}>{tip.title}</div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{tip.desc}</div>
+            <div key={i} style={{ background: 'var(--card)', padding: '16px 18px' }}>
+              <div style={{ fontSize: 20, marginBottom: 8 }}>{tip.ico}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{tip.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>{tip.desc}</div>
               {tip.example && (
-                <div onClick={() => onSearch(tip.example)} style={{ fontSize: 10, color: 'var(--acc)', marginTop: 5, cursor: 'pointer' }}>
-                  → "{tip.example}"
-                </div>
+                <div onClick={() => onSearch(tip.example)} style={{
+                  fontSize: 11, color: 'var(--acc)', marginTop: 6, cursor: 'pointer', fontWeight: 500,
+                }}>→ "{tip.example}"</div>
               )}
             </div>
           ))}
         </div>
-        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)', display: 'flex', gap: 6, alignItems: 'center' }}>
+        <div style={{ padding: '12px 18px', borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
           <input
             value={guideQ}
             onChange={e => setGuideQ(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && guideQ && onSearch(guideQ)}
-            placeholder='Probá: "heladera grande para familia, bajo $700k"'
-            style={{ flex: 1, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 8, padding: '7px 10px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: 'var(--font-sans)' }}
+            placeholder='Probá: "heladera grande para familia, bajo $700k con envío gratis"'
+            style={{
+              flex: 1, background: 'var(--bg)', border: '1px solid var(--border)',
+              borderRadius: 8, padding: '8px 12px', fontSize: 12,
+              color: 'var(--text)', outline: 'none', fontFamily: 'var(--font-sans)',
+            }}
           />
-          <button onClick={() => guideQ && onSearch(guideQ)} style={{ background: 'var(--acc)', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
-            Buscar →
-          </button>
+          <button onClick={() => guideQ && onSearch(guideQ)} style={{
+            background: 'var(--acc)', color: '#fff', border: 'none',
+            borderRadius: 8, padding: '8px 16px', fontSize: 12,
+            fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)',
+          }}>Buscar →</button>
         </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── FILTROS + AGENT BAR ── */
-export function Filters({ activeCat, onSetCat }) {
-  const CATS = ['Todos', 'Electrónica', 'Celulares', 'Hogar', 'Moda', 'Computación']
-  const CAT_KEYS = { 'Todos': 'todos', 'Electrónica': 'electronica', 'Celulares': 'celulares', 'Hogar': 'hogar', 'Moda': 'moda', 'Computación': 'computacion' }
-  const EMO = { 'Electrónica': '📱', 'Celulares': '📲', 'Hogar': '🏠', 'Moda': '👟', 'Computación': '💻' }
-  return (
-    <div style={{ padding: '0 20px 12px', display: 'flex', gap: 5, overflowX: 'auto' }}>
-      {CATS.map(c => {
-        const key = CAT_KEYS[c]
-        const active = activeCat === key
-        return (
-          <span key={c} onClick={() => onSetCat(key)} style={{
-            background: active ? 'rgba(79,70,229,.1)' : 'var(--surf)',
-            border: `1px solid ${active ? 'var(--acc)' : 'var(--border)'}`,
-            color: active ? 'var(--acc)' : 'var(--muted)',
-            borderRadius: 20, padding: '5px 12px', fontSize: 11,
-            cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-          }}>{EMO[c] || ''} {c}</span>
-        )
-      })}
-    </div>
-  )
-}
-
-export function AgentBar({ message }) {
-  return (
-    <div style={{ margin: '0 20px 14px', background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 10, padding: '9px 14px', display: 'flex', gap: 9, alignItems: 'flex-start', fontSize: 12 }}>
-      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(79,70,229,.1)', border: '1px solid rgba(79,70,229,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12 }}>✦</div>
-      <div style={{ color: 'var(--muted)', lineHeight: 1.5 }}>
-        <strong style={{ color: 'var(--acc)' }}>Agente:</strong> {message}
       </div>
     </div>
   )
@@ -214,19 +297,18 @@ export function ProductGrid({ products, activeCat, selectedBanco, onSelect }) {
   }
 
   return (
-    <div style={{ padding: '0 20px 32px' }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13 }}>🛒 Todos los productos</h2>
-        <span style={{ fontSize: 11, color: 'var(--muted)' }}>{displayed.length} productos</span>
+    <div style={{ padding: '0 28px 32px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20 }}>Todos los productos</h2>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{displayed.length} productos</span>
       </div>
       {displayed.length === 0
-        ? <p style={{ color: 'var(--muted)', fontSize: 12 }}>Sin resultados.</p>
+        ? <p style={{ color: 'var(--muted)', fontSize: 13 }}>Sin resultados.</p>
         : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 9 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 12 }}>
             {displayed.map(p => {
               const best = p.best_offer || p.offers?.[0]
               const src = best?.source || best?.src
-              const s = SRC[src] || { label: src, bg: '#444', tc: '#fff' }
               const ep = getEffectivePrice(p)
               const emoji = p.emoji || CAT_EMOJI[p.category || p.cat] || '📦'
               const hasDisc = best?.oldPrice && best.oldPrice > best.price
@@ -235,32 +317,39 @@ export function ProductGrid({ products, activeCat, selectedBanco, onSelect }) {
               return (
                 <div key={p.id} onClick={() => onSelect(p.id)} style={{
                   background: 'var(--card)', border: '1px solid var(--border)',
-                  borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
-                  transition: 'border-color .15s, transform .15s',
+                  borderRadius: 'var(--radius-lg)', padding: 14, cursor: 'pointer',
+                  transition: 'box-shadow .15s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(79,70,229,.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.08)'}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  <div style={{ width: '100%', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surf2)', fontSize: 30, padding: 14 }}>{emoji}</div>
-                  <div style={{ padding: '8px 10px 10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ background: s.bg, color: s.tc, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: '1px 5px' }}>{s.label}</span>
-                      {disc > 0 && <span style={{ fontSize: 9, color: '#E8002D', fontWeight: 700 }}>-{disc}%</span>}
-                    </div>
-                    <div style={{ fontSize: 11, fontWeight: 500, lineHeight: 1.3, marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.title}</div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700, textDecoration: ep ? 'line-through' : 'none', color: ep ? 'var(--muted)' : 'var(--text)', marginBottom: ep ? 2 : 3 }}>{fmt(best?.price)}</div>
-                    {ep && <div style={{ fontSize: 11, color: 'var(--acc)', fontWeight: 500, marginBottom: 3 }}>💳 {fmt(ep)} con {selectedBanco.banco}</div>}
-                    <div style={{ fontSize: 10, color: 'var(--muted)' }}>
-                      {best?.shipping_cost === 0 ? '🟢 Envío gratis' : '📦'} · {(p.offers || []).length} vendedor{(p.offers || []).length > 1 ? 'es' : ''}
-                    </div>
-                    {best?.gmb_verified && best?.gmb_rating && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3, fontSize: 9, color: 'var(--muted)' }}>
-                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#34A853', display: 'inline-block' }} />
-                        <span style={{ color: '#F0A500' }}>{'★'.repeat(Math.floor(best.gmb_rating))}</span>
-                        <span>{best.gmb_rating}</span>
-                      </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <SrcBadge src={src} />
+                    {disc > 0 && (
+                      <span style={{ background: '#1a9e4a', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 6, padding: '2px 6px' }}>-{disc}%</span>
                     )}
                   </div>
+                  <ImgPlaceholder emoji={emoji} size={60} />
+                  <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 6 }}>{p.title}</div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700,
+                    textDecoration: ep ? 'line-through' : 'none',
+                    color: ep ? 'var(--muted)' : 'var(--text)', marginBottom: ep ? 2 : 4,
+                  }}>{fmt(best?.price)}</div>
+                  {ep && (
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--acc)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>
+                      {fmt(ep)} <span style={{ fontSize: 11, fontWeight: 500 }}>con {selectedBanco.banco}</span>
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+                    {best?.shipping_cost === 0 ? '🟢 Envío gratis' : '📦 Ver envío'}
+                    {' · '}{(p.offers || []).length} vendedor{(p.offers || []).length !== 1 ? 'es' : ''}
+                  </div>
+                  {best?.gmb_verified && best?.gmb_rating && (
+                    <div style={{ fontSize: 10, color: '#34A853', marginTop: 3 }}>
+                      📍 {best.gmb_name || 'Local verificado'} {best.gmb_rating}★
+                    </div>
+                  )}
                 </div>
               )
             })}

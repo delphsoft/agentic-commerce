@@ -5,7 +5,7 @@ export default function SearchBar({ onSearch, onSetAgent }) {
   const [recording, setRecording] = useState(false)
   const inputRef = useRef()
 
-  const HINTS = ['auriculares', 'smart tv', 'celular', 'heladera', 'zapatillas', 'notebook']
+  const HINTS = ['notebook para editar video', 'aire split 3000F', 'iPhone 15 con cuotas', 'heladera no frost']
 
   function submit(val) {
     const v = val ?? q
@@ -33,10 +33,7 @@ export default function SearchBar({ onSearch, onSetAgent }) {
       setRecording(false)
       onSearch(text)
     }
-    rec.onerror = () => {
-      setRecording(false)
-      onSetAgent('No se pudo escuchar. Intentá de nuevo.')
-    }
+    rec.onerror = () => { setRecording(false); onSetAgent('No se pudo escuchar. Intentá de nuevo.') }
     rec.onend = () => setRecording(false)
   }
 
@@ -45,99 +42,92 @@ export default function SearchBar({ onSearch, onSetAgent }) {
   }
 
   return (
-    <div style={{ padding: '28px 20px 18px', textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
+    <div style={{ padding: '40px 28px 28px', textAlign: 'center', maxWidth: 760, margin: '0 auto' }}>
       {/* Eyebrow */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
-        fontSize: 10, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: 'var(--acc)', background: 'rgba(79,70,229,.08)',
-        border: '1px solid rgba(79,70,229,.2)', borderRadius: 20,
-        padding: '3px 12px', marginBottom: 14,
+        fontSize: 11, fontWeight: 600, color: 'var(--acc)',
+        background: 'rgba(79,70,229,.08)', border: '1px solid rgba(79,70,229,.18)',
+        borderRadius: 'var(--radius-pill)', padding: '4px 14px', marginBottom: 20,
       }}>
-        <span style={{ width: 5, height: 5, background: 'var(--acc)', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+        <span style={{ fontSize: 13 }}>+</span>
         Comparador agéntico · Argentina
       </div>
 
+      {/* H1 */}
       <h1 style={{
-        fontFamily: 'var(--font-display)', fontSize: 34, fontWeight: 700,
-        lineHeight: 1.05, letterSpacing: '-.03em', marginBottom: 10,
+        fontFamily: 'var(--font-display)', fontSize: 48, fontWeight: 800,
+        lineHeight: 1.08, letterSpacing: '-.03em', marginBottom: 16, color: 'var(--text)',
       }}>
-        Encontrá el mejor precio,<br /><span style={{ color: 'var(--acc)' }}>te lo busca el agente.</span>
+        Encontrá el mejor precio,<br />te lo busca el agente.
       </h1>
 
-      <p style={{ color: 'var(--muted)', fontSize: 12, lineHeight: 1.6, marginBottom: 18, maxWidth: 380, margin: '0 auto 18px' }}>
-        Comparamos Frávega, Garbarino, Naldo, Musimundo y MELI. Precio real con tu banco incluido.
+      <p style={{ color: 'var(--muted)', fontSize: 15, lineHeight: 1.6, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
+        Comparamos precio, reputación, envío y promos bancarias en 8 tiendas argentinas. Pedile lo que necesitás.
       </p>
 
-      {/* Search input */}
+      {/* Search bar */}
       <div style={{
-        background: 'var(--surf)', border: '1px solid var(--border)',
-        borderRadius: 12, padding: '4px 4px 4px 14px',
-        display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
+        background: 'var(--surf)', border: '2px solid var(--acc)',
+        borderRadius: 'var(--radius-lg)', padding: '6px 6px 6px 18px',
+        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16,
+        boxShadow: '0 0 0 4px rgba(79,70,229,.08)',
       }}>
-        <i className="ti ti-sparkles" style={{ color: 'var(--acc)', fontSize: 15, flexShrink: 0 }} aria-hidden="true" />
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: 'var(--acc)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexShrink: 0,
+        }}>
+          <i className="ti ti-sparkles" style={{ color: '#fff', fontSize: 16 }} aria-hidden="true" />
+        </div>
         <input
           ref={inputRef}
           value={q}
           onChange={e => setQ(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}
-          placeholder="¿Qué buscás? Ej: auriculares inalámbricos"
+          placeholder="Describí lo que buscás... ej: 'aire acondicionado split hasta $700k con cuotas'"
           style={{
             flex: 1, background: 'none', border: 'none', outline: 'none',
-            color: 'var(--text)', fontFamily: 'var(--font-sans)', fontSize: 13, padding: '9px 0',
+            color: 'var(--text)', fontFamily: 'var(--font-sans)', fontSize: 14,
+            padding: '8px 0',
           }}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <button
-            onClick={toggleMic}
-            title="Buscar por voz"
-            style={{
-              background: 'var(--surf2)', border: `1px solid ${recording ? '#E8002D' : 'var(--border)'}`,
-              borderRadius: 8, width: 34, height: 34, display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: recording ? '#E8002D' : 'var(--muted)',
-              animation: recording ? 'flash 1s infinite' : 'none', flexShrink: 0,
-            }}
-          >
-            <i className="ti ti-microphone" style={{ fontSize: 14 }} aria-hidden="true" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <button onClick={toggleMic} title="Buscar por voz" style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: recording ? '#E8002D' : 'var(--muted)',
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 8, animation: recording ? 'flash 1s infinite' : 'none',
+          }}>
+            <i className="ti ti-microphone" style={{ fontSize: 18 }} aria-hidden="true" />
           </button>
-          <button
-            onClick={openCamera}
-            title="Buscar por imagen"
-            style={{
-              background: 'var(--surf2)', border: '1px solid var(--border)',
-              borderRadius: 8, width: 34, height: 34, display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: 'var(--muted)', flexShrink: 0,
-            }}
-          >
-            <i className="ti ti-camera" style={{ fontSize: 14 }} aria-hidden="true" />
+          <button onClick={openCamera} title="Buscar por imagen" style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--muted)', width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8,
+          }}>
+            <i className="ti ti-camera" style={{ fontSize: 18 }} aria-hidden="true" />
           </button>
-          <button
-            onClick={() => submit()}
-            style={{
-              background: 'var(--acc)', color: '#fff',
-              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12,
-              border: 'none', borderRadius: 9, padding: '9px 14px', cursor: 'pointer',
-            }}
-          >
-            Buscar →
+          <button onClick={() => submit()} style={{
+            background: '#1d1d1f', color: '#fff',
+            fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14,
+            border: 'none', borderRadius: 10, padding: '10px 22px',
+            cursor: 'pointer', whiteSpace: 'nowrap',
+          }}>
+            Buscar
           </button>
         </div>
       </div>
 
       {/* Hints */}
-      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+        <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Probá:</span>
         {HINTS.map(h => (
-          <span
-            key={h}
-            onClick={() => submit(h)}
-            style={{
-              fontSize: 11, color: 'var(--muted)', background: 'var(--surf)',
-              border: '1px solid var(--border)', borderRadius: 20,
-              padding: '3px 10px', cursor: 'pointer',
-            }}
-          >{h}</span>
+          <span key={h} onClick={() => submit(h)} style={{
+            fontSize: 12, color: 'var(--text)', background: 'var(--surf)',
+            border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)',
+            padding: '5px 14px', cursor: 'pointer', fontWeight: 400,
+          }}>{h}</span>
         ))}
       </div>
     </div>
