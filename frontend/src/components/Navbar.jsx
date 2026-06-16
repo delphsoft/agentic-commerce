@@ -25,7 +25,7 @@ export default function Navbar({ cartCount, onOpenCart }) {
         Carrito
         <span style={{
           background: cartCount > 0 ? 'var(--acc)' : 'var(--border)',
-          color: cartCount > 0 ? '#000' : 'var(--muted)',
+          color: cartCount > 0 ? '#fff' : 'var(--muted)',
           fontSize: 10, fontWeight: 700, borderRadius: '50%',
           width: 18, height: 18, display: 'inline-flex',
           alignItems: 'center', justifyContent: 'center',

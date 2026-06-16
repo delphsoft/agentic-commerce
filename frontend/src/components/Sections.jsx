@@ -98,7 +98,7 @@ export function TopCategoria({ onSelect }) {
                 background: 'none', border: `1px solid ${cat === key ? 'var(--acc)' : 'var(--border)'}`,
                 borderRadius: 20, padding: '3px 9px', fontSize: 10,
                 color: cat === key ? 'var(--acc)' : 'var(--muted)',
-                background: cat === key ? 'rgba(0,232,122,.1)' : 'none', cursor: 'pointer',
+                background: cat === key ? 'rgba(79,70,229,.1)' : 'none', cursor: 'pointer',
               }}>{label}</button>
             ))}
           </div>
@@ -155,7 +155,7 @@ export function GuiaBusqueda({ onSearch }) {
             placeholder='Probá: "heladera grande para familia, bajo $700k"'
             style={{ flex: 1, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 8, padding: '7px 10px', fontSize: 12, color: 'var(--text)', outline: 'none', fontFamily: 'var(--font-sans)' }}
           />
-          <button onClick={() => guideQ && onSearch(guideQ)} style={{ background: 'var(--acc)', color: '#000', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
+          <button onClick={() => guideQ && onSearch(guideQ)} style={{ background: 'var(--acc)', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
             Buscar →
           </button>
         </div>
@@ -176,7 +176,7 @@ export function Filters({ activeCat, onSetCat }) {
         const active = activeCat === key
         return (
           <span key={c} onClick={() => onSetCat(key)} style={{
-            background: active ? 'rgba(0,232,122,.1)' : 'var(--surf)',
+            background: active ? 'rgba(79,70,229,.1)' : 'var(--surf)',
             border: `1px solid ${active ? 'var(--acc)' : 'var(--border)'}`,
             color: active ? 'var(--acc)' : 'var(--muted)',
             borderRadius: 20, padding: '5px 12px', fontSize: 11,
@@ -191,7 +191,7 @@ export function Filters({ activeCat, onSetCat }) {
 export function AgentBar({ message }) {
   return (
     <div style={{ margin: '0 20px 14px', background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 10, padding: '9px 14px', display: 'flex', gap: 9, alignItems: 'flex-start', fontSize: 12 }}>
-      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,232,122,.1)', border: '1px solid rgba(0,232,122,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12 }}>✦</div>
+      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(79,70,229,.1)', border: '1px solid rgba(79,70,229,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12 }}>✦</div>
       <div style={{ color: 'var(--muted)', lineHeight: 1.5 }}>
         <strong style={{ color: 'var(--acc)' }}>Agente:</strong> {message}
       </div>
@@ -238,7 +238,7 @@ export function ProductGrid({ products, activeCat, selectedBanco, onSelect }) {
                   borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
                   transition: 'border-color .15s, transform .15s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,232,122,.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(79,70,229,.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
                 >
                   <div style={{ width: '100%', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surf2)', fontSize: 30, padding: 14 }}>{emoji}</div>

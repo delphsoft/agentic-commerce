@@ -16,7 +16,7 @@ function getEffectivePrice(offer, banco) {
 
 function ScoreBar({ label, value }) {
   const pct = Math.round((value || 0) * 100)
-  const color = pct >= 70 ? '#00E87A' : pct >= 40 ? '#F0A500' : '#E8002D'
+  const color = pct >= 70 ? '#4f46e5' : pct >= 40 ? '#F0A500' : '#E8002D'
   return (
     <div style={{ marginBottom: 7 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>
@@ -35,13 +35,13 @@ function OfferRow({ offer, isTop, banco, onBuy }) {
 
   return (
     <div style={{
-      background: isTop ? 'rgba(0,232,122,.04)' : 'var(--card)',
-      border: `1px solid ${isTop ? 'rgba(0,232,122,.28)' : 'var(--border)'}`,
+      background: isTop ? 'rgba(79,70,229,.04)' : 'var(--card)',
+      border: `1px solid ${isTop ? 'rgba(79,70,229,.28)' : 'var(--border)'}`,
       borderRadius: 9, padding: '11px 13px', marginBottom: 7,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         <span style={{ background: s.bg, color: s.tc, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: '1px 5px' }}>{s.label}</span>
-        {isTop && <span style={{ fontSize: 9, color: 'var(--acc)', background: 'rgba(0,232,122,.1)', border: '1px solid rgba(0,232,122,.2)', borderRadius: 4, padding: '1px 6px' }}>✦ Mejor opción</span>}
+        {isTop && <span style={{ fontSize: 9, color: 'var(--acc)', background: 'rgba(79,70,229,.1)', border: '1px solid rgba(79,70,229,.2)', borderRadius: 4, padding: '1px 6px' }}>✦ Mejor opción</span>}
         <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--muted)' }}>Score: <strong style={{ color: 'var(--text)' }}>{Math.round((offer.score || 0) * 100)}</strong>/100</span>
       </div>
 
@@ -166,7 +166,7 @@ export default function ProductModal({ product, banco, onClose, onAddCart }) {
               ].map(([label, key]) => (
                 <ScoreBar key={key} label={label} value={best?.breakdown?.[key] || 0} />
               ))}
-              <div style={{ marginTop: 14, padding: '9px 12px', background: 'rgba(0,232,122,.06)', border: '1px solid rgba(0,232,122,.15)', borderRadius: 8, fontSize: 11, color: 'var(--muted)' }}>
+              <div style={{ marginTop: 14, padding: '9px 12px', background: 'rgba(79,70,229,.06)', border: '1px solid rgba(79,70,229,.15)', borderRadius: 8, fontSize: 11, color: 'var(--muted)' }}>
                 Score total: <strong style={{ color: 'var(--acc)', fontSize: 14 }}>{Math.round((best?.score || 0) * 100)}/100</strong>
               </div>
             </>

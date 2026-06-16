@@ -50,19 +50,19 @@ export default function SearchBar({ onSearch, onSetAgent }) {
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         fontSize: 10, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: 'var(--acc)', background: 'rgba(0,232,122,.08)',
-        border: '1px solid rgba(0,232,122,.2)', borderRadius: 20,
+        color: 'var(--acc)', background: 'rgba(79,70,229,.08)',
+        border: '1px solid rgba(79,70,229,.2)', borderRadius: 20,
         padding: '3px 12px', marginBottom: 14,
       }}>
         <span style={{ width: 5, height: 5, background: 'var(--acc)', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-        Agente activo · Argentina
+        Comparador agéntico · Argentina
       </div>
 
       <h1 style={{
         fontFamily: 'var(--font-display)', fontSize: 34, fontWeight: 700,
-        lineHeight: 1.05, letterSpacing: '-.02em', marginBottom: 10,
+        lineHeight: 1.05, letterSpacing: '-.03em', marginBottom: 10,
       }}>
-        Tu shopper<br /><span style={{ color: 'var(--acc)' }}>inteligente</span>
+        Encontrá el mejor precio,<br /><span style={{ color: 'var(--acc)' }}>te lo busca el agente.</span>
       </h1>
 
       <p style={{ color: 'var(--muted)', fontSize: 12, lineHeight: 1.6, marginBottom: 18, maxWidth: 380, margin: '0 auto 18px' }}>
@@ -116,7 +116,7 @@ export default function SearchBar({ onSearch, onSetAgent }) {
           <button
             onClick={() => submit()}
             style={{
-              background: 'var(--acc)', color: '#000',
+              background: 'var(--acc)', color: '#fff',
               fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12,
               border: 'none', borderRadius: 9, padding: '9px 14px', cursor: 'pointer',
             }}

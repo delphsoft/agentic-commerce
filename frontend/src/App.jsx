@@ -54,23 +54,23 @@ export default function App() {
       {/* BLOQUE 1: Más buscados */}
       <MasBuscados onSelect={openProduct} />
 
-      {/* BLOQUE 2: Promos bancarias */}
-      <BancoPromos selectedBanco={selectedBanco} onSelectBanco={handleSelectBanco} />
-
-      {/* BLOQUE 3: Ofertas recientes */}
+      {/* BLOQUE 2: Puestos en oferta (arriba de promos) */}
       <OfertasRecientes onSelect={openProduct} />
+
+      {/* BLOQUE 3: Promos bancarias */}
+      <BancoPromos selectedBanco={selectedBanco} onSelectBanco={handleSelectBanco} />
 
       {/* BLOQUE 4: Top categoría */}
       <TopCategoria onSelect={openProduct} />
 
-      {/* BLOQUE 5: Guía de búsqueda */}
-      <GuiaBusqueda onSearch={search} />
-
-      {/* BLOQUE 6: Grilla principal */}
+      {/* BLOQUE 5: Grilla principal */}
       {loading
         ? <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '40px 20px', fontSize: 13 }}>Buscando...</p>
         : <ProductGrid products={products} activeCat={activeCat} selectedBanco={selectedBanco} onSelect={openProduct} />
       }
+
+      {/* BLOQUE 6: Guía de búsqueda (al final) */}
+      <GuiaBusqueda onSearch={search} />
 
       <footer style={{ borderTop: '1px solid var(--border)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>AgentShop · delphsoft · Argentina</span>

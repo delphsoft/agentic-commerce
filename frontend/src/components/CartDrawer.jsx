@@ -44,7 +44,7 @@ export default function CartDrawer({ cart, isOpen, onClose, onRemove }) {
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>Total</span>
               <strong style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>{fmt(total)}</strong>
             </div>
-            <button style={{ width: '100%', padding: 11, background: 'var(--acc)', color: '#000', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, border: 'none', borderRadius: 10, cursor: 'pointer' }}>
+            <button style={{ width: '100%', padding: 11, background: 'var(--acc)', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, border: 'none', borderRadius: 10, cursor: 'pointer' }}>
               💳 Pagar con Mercado Pago
             </button>
             <p style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', marginTop: 6 }}>Checkout seguro vía Mercado Pago Checkout Pro</p>

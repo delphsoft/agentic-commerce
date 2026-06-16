@@ -25,8 +25,8 @@ export default function BancoPromos({ selectedBanco, onSelectBanco }) {
           </div>
         </div>
         <span style={{
-          fontSize: 9, color: 'var(--acc)', background: 'rgba(0,232,122,.1)',
-          border: '1px solid rgba(0,232,122,.2)', borderRadius: 20, padding: '2px 7px',
+          fontSize: 9, color: '#7ee0a0', background: 'rgba(126,224,160,.1)',
+          border: '1px solid rgba(126,224,160,.2)', borderRadius: 20, padding: '2px 7px',
           animation: 'pulse 2s infinite',
         }}>● EN VIVO</span>
       </div>
@@ -41,8 +41,8 @@ export default function BancoPromos({ selectedBanco, onSelectBanco }) {
               key={b.id}
               onClick={() => onSelectBanco(isActive ? null : b)}
               style={{
-                background: isActive ? 'rgba(0,232,122,.08)' : 'rgba(255,255,255,.05)',
-                border: `1px solid ${isActive ? 'rgba(0,232,122,.5)' : isToday ? '#2A4A6F' : '#1E3A5F'}`,
+                background: isActive ? 'rgba(126,224,160,.08)' : 'rgba(255,255,255,.05)',
+                border: `1px solid ${isActive ? 'rgba(126,224,160,.5)' : isToday ? '#2A4A6F' : '#1E3A5F'}`,
                 borderRadius: 9, padding: '9px 11px',
                 minWidth: 155, maxWidth: 155, flexShrink: 0,
                 cursor: 'pointer', transition: 'border-color .15s',
@@ -56,17 +56,17 @@ export default function BancoPromos({ selectedBanco, onSelectBanco }) {
                   fontSize: 9, fontWeight: 700, flexShrink: 0,
                 }}>{b.initial}</div>
                 <span style={{ fontSize: 10, fontWeight: 500, color: '#E8F4FD' }}>{b.banco}</span>
-                {isActive && <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--acc)' }}>✓</span>}
+                {isActive && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#7ee0a0' }}>✓</span>}
               </div>
               <div style={{
                 fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700,
-                color: 'var(--acc)', marginBottom: 3,
+                color: '#7ee0a0', marginBottom: 3,
               }}>{b.promo}</div>
               <div style={{ fontSize: 10, color: '#7AADCC', lineHeight: 1.4, marginBottom: 5 }}>{b.desc}</div>
               <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                 {b.dias.map(d => (
                   <span key={d} style={{
-                    fontSize: 9, background: d === today || d === 'Todos' ? 'rgba(0,232,122,.1)' : 'rgba(55,138,221,.15)',
+                    fontSize: 9, background: d === today || d === 'Todos' ? 'rgba(126,224,160,.1)' : 'rgba(55,138,221,.15)',
                     color: d === today || d === 'Todos' ? 'var(--acc)' : '#85B7EB',
                     borderRadius: 4, padding: '1px 5px',
                   }}>{d}</span>
