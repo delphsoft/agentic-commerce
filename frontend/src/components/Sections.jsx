@@ -1,3 +1,4 @@
+import ProductImage from './ProductImage'
 import { useState } from 'react'
 import { SRC, CAT_EMOJI, MOCK_MAS_BUSCADOS, MOCK_RECENT_OFFERS, MOCK_TOP_CATS, GUIDE_TIPS } from '../data/mock'
 

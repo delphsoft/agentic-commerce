@@ -1,3 +1,4 @@
+import ProductImage from './ProductImage'
 import { useState } from 'react'
 import { SRC } from '../data/mock'
 
