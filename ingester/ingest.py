@@ -1,5 +1,4 @@
-"""
-ingest.py — orquesta scrapers y pushea a Supabase
+from scrapers.serpapi_shopping import search_products as serpapi_searchingest.py — orquesta scrapers y pushea a Supabase
 Fuentes:
   - SerpAPI Google Shopping (principal — no se bloquea desde GitHub Actions)
   - MELI OAuth (si MELI_ACCESS_TOKEN disponible)
