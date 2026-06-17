@@ -5,32 +5,39 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
+const PRODUCT_SELECT = `id, title, brand, category, image_url,
+  offers(id, source, seller_name, price, currency,
+    shipping_cost, shipping_days, warranty,
+    seller_reputation, gmb_rating, gmb_verified,
+    stock_available, url, score, installments,
+    installments_rate, is_official_store)`
+
 export async function searchProducts(query) {
   if (!query?.trim()) return []
-  const { data, error } = await supabase
-    .from('products')
-    .select(`id, title, brand, category, image_url,
-      offers(id, source, seller_name, price, currency,
-        shipping_cost, shipping_days, warranty,
-        seller_reputation, gmb_rating, gmb_verified,
-        stock_available, url, score, installments,
-        installments_rate, is_official_store)`)
-    .ilike('title', `%${query}%`)
-    .limit(24)
-  if (error) throw error
+
+  // Busca por cada palabra significativa con OR
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+  let q = supabase.from('products').select(PRODUCT_SELECT)
+
+  if (words.length > 0) {
+    // ilike por cada palabra: title ilike %word1% OR title ilike %word2%
+    const orFilter = words.map(w => `title.ilike.%${w}%`).join(',')
+    q = q.or(orFilter)
+  } else {
+    q = q.ilike('title', `%${query}%`)
+  }
+
+  const { data, error } = await q.limit(40)
+  if (error) { console.error('searchProducts error:', error); throw error }
   return normalizeProducts(data || [])
 }
 
-export async function getTopProducts(limit = 20) {
+export async function getTopProducts(limit = 24) {
   const { data, error } = await supabase
     .from('products')
-    .select(`id, title, brand, category, image_url,
-      offers(id, source, seller_name, price, shipping_cost,
-        shipping_days, warranty, seller_reputation,
-        gmb_rating, gmb_verified, stock_available,
-        url, score, installments, installments_rate, is_official_store)`)
+    .select(PRODUCT_SELECT)
     .limit(limit)
-  if (error) throw error
+  if (error) { console.error('getTopProducts error:', error); throw error }
   return normalizeProducts(data || [])
 }
 
@@ -42,7 +49,7 @@ export async function getRecentOffers(limit = 8) {
     .eq('stock_available', true)
     .order('updated_at', { ascending: false })
     .limit(limit)
-  if (error) throw error
+  if (error) return []
   return data || []
 }
 
@@ -59,9 +66,8 @@ export async function getBancoPromos() {
 function normalizeProducts(products) {
   return products
     .filter(p => p.offers?.length > 0)
-    .map(p => ({
-      ...p,
-      offers: [...(p.offers || [])].sort((a, b) => (b.score || 0) - (a.score || 0)),
-      best_offer: [...(p.offers || [])].sort((a, b) => (b.score || 0) - (a.score || 0))[0],
-    }))
+    .map(p => {
+      const sorted = [...(p.offers || [])].sort((a, b) => (b.score || 0) - (a.score || 0))
+      return { ...p, offers: sorted, best_offer: sorted[0] }
+    })
 }
