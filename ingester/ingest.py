@@ -74,11 +74,18 @@ def ingest_query(sb, query, vertical="default"):
 
     if HAS_SERPAPI:
         results = serpapi_search(query, limit=10)
+        # Asignar categoria segun el vertical buscado
+        for o in results:
+            if not o.get("category"):
+                o["category"] = vertical
         results = [enrich_offer_with_gmb(o) for o in results]
         all_offers.extend(results)
 
     if HAS_MELI:
         meli_results = meli_search(query, limit=8)
+        for o in meli_results:
+            if not o.get("category") or o.get("category", "").startswith("ML"):
+                o["category"] = vertical
         meli_results = [enrich_offer_with_gmb(o) for o in meli_results]
         all_offers.extend(meli_results)
 
