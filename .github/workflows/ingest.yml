@@ -18,6 +18,22 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Check secrets
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "ERROR: SUPABASE_URL is empty"
+          else
+            echo "OK: SUPABASE_URL is set (length=${#SUPABASE_URL})"
+          fi
+          if [ -z "$SUPABASE_SERVICE_KEY" ]; then
+            echo "ERROR: SUPABASE_SERVICE_KEY is empty"
+          else
+            echo "OK: SUPABASE_SERVICE_KEY is set (length=${#SUPABASE_SERVICE_KEY})"
+          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Install dependencies
         run: pip install httpx beautifulsoup4 supabase python-dotenv
 
@@ -25,4 +41,5 @@ jobs:
         run: python ingester/ingest.py --all
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.sInR5cCI6IkpXVCJ9.SUPABASE_SERVICE_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
