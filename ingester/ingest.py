@@ -1,13 +1,3 @@
-from scrapers.serpapi_shopping import search_products as serpapi_searchingest.py — orquesta scrapers y pushea a Supabase
-Fuentes:
-  - SerpAPI Google Shopping (principal — no se bloquea desde GitHub Actions)
-  - MELI OAuth (si MELI_ACCESS_TOKEN disponible)
-  - Fallbacks estáticos de scrapers HTML si corren localmente
-
-Uso:
-  python ingester/ingest.py "auriculares"
-  python ingester/ingest.py --all
-"""
 import sys
 import os
 from datetime import datetime, timezone
@@ -24,11 +14,11 @@ HAS_SERPAPI = bool(os.environ.get("SERPAPI_KEY"))
 HAS_MELI = bool(os.environ.get("MELI_ACCESS_TOKEN"))
 
 DEFAULT_QUERIES = {
-    "electronica":  ["auriculares inalambricos", "smart tv 55 pulgadas", "notebook i5", "parlante bluetooth", "camara ip wifi"],
+    "electronica":  ["auriculares inalambricos", "smart tv 55 pulgadas", "notebook i5", "parlante bluetooth"],
     "celulares":    ["celular samsung galaxy", "iphone 15", "motorola edge", "xiaomi redmi"],
-    "hogar":        ["heladera no frost 400 litros", "aire acondicionado split 3000", "lavarropas automatico", "microondas"],
-    "moda":         ["zapatillas running hombre", "zapatillas urbanas mujer", "botinetas cuero"],
-    "computacion":  ["monitor 24 pulgadas full hd", "teclado mecanico", "mouse gamer", "disco ssd 1tb"],
+    "hogar":        ["heladera no frost", "aire acondicionado split 3000", "lavarropas automatico"],
+    "moda":         ["zapatillas running hombre", "zapatillas urbanas mujer"],
+    "computacion":  ["monitor 24 pulgadas", "teclado mecanico", "mouse gamer"],
 }
 
 
@@ -36,7 +26,7 @@ def get_supabase() -> Client:
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-def upsert_product(sb: Client, offer: dict) -> str:
+def upsert_product(sb, offer):
     title = offer.get("title", "").strip()
     if not title:
         return None
@@ -44,11 +34,7 @@ def upsert_product(sb: Client, offer: dict) -> str:
     if existing.data:
         pid = existing.data[0]["id"]
         if offer.get("image_url") and not existing.data[0].get("image_url"):
-            sb.table("products").update({
-                "image_url": offer["image_url"],
-                "brand": offer.get("brand", ""),
-                "category": offer.get("category", ""),
-            }).eq("id", pid).execute()
+            sb.table("products").update({"image_url": offer["image_url"]}).eq("id", pid).execute()
         return pid
     result = sb.table("products").insert({
         "title": title,
@@ -59,7 +45,7 @@ def upsert_product(sb: Client, offer: dict) -> str:
     return result.data[0]["id"]
 
 
-def upsert_offer(sb: Client, product_id: str, offer: dict):
+def upsert_offer(sb, product_id, offer):
     sb.table("offers").upsert({
         "product_id": product_id,
         "source": offer.get("source"),
@@ -82,24 +68,22 @@ def upsert_offer(sb: Client, product_id: str, offer: dict):
     }, on_conflict="product_id,source").execute()
 
 
-def ingest_query(sb: Client, query: str, vertical: str = "default"):
+def ingest_query(sb, query, vertical="default"):
     print(f"\n[ingest] '{query}' | vertical={vertical}")
     all_offers = []
 
-    # 1. SerpAPI Google Shopping — funciona desde GitHub Actions
     if HAS_SERPAPI:
         results = serpapi_search(query, limit=10)
         results = [enrich_offer_with_gmb(o) for o in results]
         all_offers.extend(results)
 
-    # 2. MELI OAuth — si hay token configurado
     if HAS_MELI:
         meli_results = meli_search(query, limit=8)
         meli_results = [enrich_offer_with_gmb(o) for o in meli_results]
         all_offers.extend(meli_results)
 
     if not all_offers:
-        print("  Sin resultados — verificá SERPAPI_KEY o MELI_ACCESS_TOKEN")
+        print("  Sin resultados — verificá SERPAPI_KEY")
         return 0
 
     scored = score_offers([o for o in all_offers if o.get("price")])
@@ -120,7 +104,7 @@ def ingest_query(sb: Client, query: str, vertical: str = "default"):
     except Exception:
         pass
 
-    print(f"  ✓ {inserted} pusheadas a Supabase")
+    print(f"  OK {inserted} pusheadas")
     return inserted
 
 
@@ -136,10 +120,9 @@ def main():
         for vertical, queries in DEFAULT_QUERIES.items():
             for q in queries:
                 total += ingest_query(sb, q, vertical)
-        print(f"\n[ingest] ✓ Total: {total} offers en Supabase")
+        print(f"\n[ingest] Total: {total} offers en Supabase")
     else:
-        query = " ".join(args)
-        ingest_query(sb, query)
+        ingest_query(sb, " ".join(args))
 
 
 if __name__ == "__main__":
