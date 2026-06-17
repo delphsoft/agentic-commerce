@@ -1,8 +1,19 @@
 import { useState } from 'react'
 
+// Proxy para imágenes de Google Shopping (gstatic bloquea hotlinking)
+function proxyUrl(src) {
+  if (!src) return ''
+  // wsrv.nl es un proxy de imágenes gratuito que resuelve el hotlink de gstatic
+  if (src.includes('gstatic.com') || src.includes('encrypted-tbn')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=300&h=300&fit=contain&output=webp`
+  }
+  return src
+}
+
 export default function ProductImage({ src, emoji, size = 60, style = {} }) {
   const [error, setError] = useState(false)
-  const showImg = src && src !== '' && src !== '#' && !error
+  const finalSrc = proxyUrl(src)
+  const showImg = finalSrc && finalSrc !== '' && finalSrc !== '#' && !error
 
   if (showImg) {
     return (
@@ -13,8 +24,9 @@ export default function ProductImage({ src, emoji, size = 60, style = {} }) {
         ...style,
       }}>
         <img
-          src={src}
+          src={finalSrc}
           alt=""
+          loading="lazy"
           onError={() => setError(true)}
           style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }}
         />
