@@ -1,20 +1,46 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { searchProducts, getTopProducts } from '../lib/supabase'
 import { MOCK_PRODUCTS } from '../data/mock'
 
 export function useSearch() {
-  const [products, setProducts] = useState(MOCK_PRODUCTS)
-  const [loading, setLoading] = useState(false)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [agentMsg, setAgentMsg] = useState(
-    'Mostrando los más buscados hoy. Seleccioná tu banco para ver el precio real con descuento.'
+    'Cargando los productos más buscados...'
   )
+
+  // Carga inicial: trae productos reales de Supabase al abrir la página
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const top = await getTopProducts(24)
+        if (cancelled) return
+        if (top.length > 0) {
+          setProducts(top)
+          setAgentMsg(`Mostrando ${top.length} productos. Buscá lo que necesités o filtrá por categoría.`)
+        } else {
+          setProducts(MOCK_PRODUCTS)
+          setAgentMsg('Mostrando productos de ejemplo. Buscá lo que necesités.')
+        }
+      } catch (e) {
+        if (cancelled) return
+        console.error('Error cargando productos:', e)
+        setProducts(MOCK_PRODUCTS)
+        setAgentMsg('Mostrando productos de ejemplo.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const search = useCallback(async (q) => {
     if (!q?.trim()) return
     setLoading(true)
     setQuery(q)
-    setAgentMsg(`Buscando "${q}" en Frávega, Garbarino, Naldo, MELI y más...`)
+    setAgentMsg(`Buscando "${q}"...`)
 
     try {
       const results = await searchProducts(q)
@@ -22,27 +48,17 @@ export function useSearch() {
         setProducts(results)
         setAgentMsg(`Encontré ${results.length} productos para "${q}".`)
       } else {
-        const filtered = MOCK_PRODUCTS.filter(p =>
-          p.title.toLowerCase().includes(q.toLowerCase()) ||
-          p.brand?.toLowerCase().includes(q.toLowerCase()) ||
-          p.category?.toLowerCase().includes(q.toLowerCase()) ||
-          q.split(' ').some(w => w.length > 2 && p.title.toLowerCase().includes(w))
-        )
-        setProducts(filtered.length > 0 ? filtered : MOCK_PRODUCTS)
-        setAgentMsg(filtered.length > 0
-          ? `Encontré ${filtered.length} productos para "${q}".`
-          : `Sin resultados exactos para "${q}". Mostrando populares.`)
+        // Si no hay match en DB, intenta traer top products de nuevo
+        const top = await getTopProducts(24)
+        setProducts(top.length > 0 ? top : MOCK_PRODUCTS)
+        setAgentMsg(`Sin resultados exactos para "${q}". Mostrando populares.`)
       }
-    } catch {
-      const filtered = MOCK_PRODUCTS.filter(p =>
-        p.title.toLowerCase().includes(q.toLowerCase()) ||
-        q.split(' ').some(w => w.length > 2 && p.title.toLowerCase().includes(w))
-      )
-      setProducts(filtered.length > 0 ? filtered : MOCK_PRODUCTS)
-      setAgentMsg(`Mostrando resultados locales para "${q}".`)
+    } catch (e) {
+      console.error('Error en búsqueda:', e)
+      setAgentMsg(`Error al buscar "${q}". Reintentá.`)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }, [])
 
   return { products, loading, query, agentMsg, setAgentMsg, search }
