@@ -127,7 +127,7 @@ export function MasBuscados({ onSelect }) {
               <SrcBadge src={p.src} />
             </div>
             {/* Image placeholder */}
-            <ImgPlaceholder emoji={p.emoji} size={64} />
+            <ProductImage src={p.image_url} emoji={p.emoji} size={64} />
             <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 6, color: 'var(--text)' }}>{p.title}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -164,7 +164,7 @@ export function OfertasRecientes({ onSelect }) {
                 fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '2px 8px',
               }}>-{o.disc}%</span>
             </div>
-            <ImgPlaceholder emoji={o.emoji} size={56} />
+            <ProductImage src={o.image_url} emoji={o.emoji} size={56} />
             <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 8, color: 'var(--text)' }}>{o.title}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>{fmt(o.price)}</span>
@@ -227,7 +227,7 @@ export function TopCategoria({ onSelect }) {
                 }}>#{p.rank}</span>
                 <SrcBadge src={p.src} />
               </div>
-              <ImgPlaceholder emoji={p.emoji} size={56} />
+              <ProductImage src={p.image_url} emoji={p.emoji} size={56} />
               <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{p.title}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
               <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.meta}</div>
@@ -330,7 +330,7 @@ export function ProductGrid({ products, activeCat, selectedBanco, onSelect }) {
                       <span style={{ background: '#1a9e4a', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 6, padding: '2px 6px' }}>-{disc}%</span>
                     )}
                   </div>
-                  <ImgPlaceholder emoji={emoji} size={60} />
+                  <ProductImage src={p.image_url} emoji={emoji} size={60} />
                   <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 6 }}>{p.title}</div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700,

@@ -123,7 +123,7 @@ export default function ProductModal({ product, banco, onClose, onAddCart }) {
       }}>
         {/* Head */}
         <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <ImgPlaceholder emoji={emoji} />
+          <ProductImage src={product.image_url} emoji={emoji} size={80} style={{ width: 80, height: 80, marginBottom: 0, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, color: 'var(--acc)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 4 }}>{product.brand}</div>
             <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.3, marginBottom: 4 }}>{product.title}</div>
