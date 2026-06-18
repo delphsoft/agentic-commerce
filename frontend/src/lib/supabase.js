@@ -58,9 +58,23 @@ function attachOffers(products, offers) {
   return products
     .map(p => {
       const sorted = (byProduct[p.id] || []).sort((a, b) => (b.score || 0) - (a.score || 0))
-      return { ...p, offers: sorted, best_offer: sorted[0] }
+      return { ...p, category: normalizeCategory(p.category), offers: sorted, best_offer: sorted[0] }
     })
     .filter(p => p.offers.length > 0)
+}
+
+const CAT_MAP = {
+  'electrónica': 'electronica', 'electronics': 'electronica', 'electrónico': 'electronica',
+  'celulares': 'celulares', 'celular': 'celulares', 'smartphones': 'celulares', 'telefonia': 'celulares',
+  'hogar': 'hogar', 'home': 'hogar', 'línea blanca': 'hogar', 'linea blanca': 'hogar', 'electrodomésticos': 'hogar',
+  'moda': 'moda', 'ropa': 'moda', 'indumentaria': 'moda', 'calzado': 'moda', 'fashion': 'moda',
+  'computacion': 'computacion', 'computación': 'computacion', 'computing': 'computacion', 'notebooks': 'computacion',
+}
+
+function normalizeCategory(cat) {
+  if (!cat) return 'otros'
+  const key = cat.toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  return CAT_MAP[cat.toLowerCase().trim()] || CAT_MAP[key] || cat.toLowerCase().trim()
 }
 
 export async function getRecentOffers(limit = 8) {
