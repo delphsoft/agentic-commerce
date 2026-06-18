@@ -5,47 +5,68 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
-const PRODUCT_SELECT = `id, title, brand, category, image_url,
-  offers(id, source, seller_name, price, currency,
-    shipping_cost, shipping_days, warranty,
-    seller_reputation, gmb_rating, gmb_verified,
-    stock_available, url, score, installments,
-    installments_rate, is_official_store)`
+export async function getTopProducts(limit = 24) {
+  // Query 1: productos
+  const { data: products, error: pe } = await supabase
+    .from('products')
+    .select('id, title, brand, category, image_url')
+    .limit(limit)
+  if (pe) throw pe
+  if (!products?.length) return []
+
+  // Query 2: offers para esos productos
+  const ids = products.map(p => p.id)
+  const { data: offers, error: oe } = await supabase
+    .from('offers')
+    .select('id, product_id, source, seller_name, price, currency, shipping_cost, shipping_days, warranty, seller_reputation, gmb_rating, gmb_verified, stock_available, url, score, installments, installments_rate, is_official_store')
+    .in('product_id', ids)
+  if (oe) throw oe
+
+  return attachOffers(products, offers || [])
+}
 
 export async function searchProducts(query) {
   if (!query?.trim()) return []
-
-  // Busca por cada palabra significativa con OR
   const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2)
-  let q = supabase.from('products').select(PRODUCT_SELECT)
 
+  let q = supabase.from('products').select('id, title, brand, category, image_url')
   if (words.length > 0) {
-    // ilike por cada palabra: title ilike %word1% OR title ilike %word2%
-    const orFilter = words.map(w => `title.ilike.%${w}%`).join(',')
-    q = q.or(orFilter)
+    q = q.or(words.map(w => `title.ilike.%${w}%`).join(','))
   } else {
     q = q.ilike('title', `%${query}%`)
   }
+  const { data: products, error: pe } = await q.limit(40)
+  if (pe) throw pe
+  if (!products?.length) return []
 
-  const { data, error } = await q.limit(40)
-  if (error) { console.error('searchProducts error:', error); throw error }
-  return normalizeProducts(data || [])
+  const ids = products.map(p => p.id)
+  const { data: offers, error: oe } = await supabase
+    .from('offers')
+    .select('id, product_id, source, seller_name, price, currency, shipping_cost, shipping_days, warranty, seller_reputation, gmb_rating, gmb_verified, stock_available, url, score, installments, installments_rate, is_official_store')
+    .in('product_id', ids)
+  if (oe) throw oe
+
+  return attachOffers(products, offers || [])
 }
 
-export async function getTopProducts(limit = 24) {
-  const { data, error } = await supabase
-    .from('products')
-    .select(PRODUCT_SELECT)
-    .limit(limit)
-  if (error) { console.error('getTopProducts error:', error); throw error }
-  return normalizeProducts(data || [])
+function attachOffers(products, offers) {
+  const byProduct = {}
+  for (const o of offers) {
+    if (!byProduct[o.product_id]) byProduct[o.product_id] = []
+    byProduct[o.product_id].push(o)
+  }
+  return products
+    .map(p => {
+      const sorted = (byProduct[p.id] || []).sort((a, b) => (b.score || 0) - (a.score || 0))
+      return { ...p, offers: sorted, best_offer: sorted[0] }
+    })
+    .filter(p => p.offers.length > 0)
 }
 
 export async function getRecentOffers(limit = 8) {
   const { data, error } = await supabase
     .from('offers')
-    .select(`id, source, seller_name, price, url, updated_at,
-      products(id, title, category, image_url)`)
+    .select('id, source, seller_name, price, url, updated_at, product_id')
     .eq('stock_available', true)
     .order('updated_at', { ascending: false })
     .limit(limit)
@@ -61,13 +82,4 @@ export async function getBancoPromos() {
     .order('priority', { ascending: true })
   if (error) return []
   return data || []
-}
-
-function normalizeProducts(products) {
-  return products
-    .filter(p => p.offers?.length > 0)
-    .map(p => {
-      const sorted = [...(p.offers || [])].sort((a, b) => (b.score || 0) - (a.score || 0))
-      return { ...p, offers: sorted, best_offer: sorted[0] }
-    })
 }
