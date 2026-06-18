@@ -102,12 +102,25 @@ export function AgentBar({ message }) {
 }
 
 /* ── MÁS BUSCADOS ── */
-export function MasBuscados({ onSelect }) {
+export function MasBuscados({ onSelect, products = [] }) {
+  const items = products.length > 0
+    ? products.slice(0, 5).map((p, i) => ({
+        id: p.id,
+        rank: i + 1,
+        src: p.best_offer?.source,
+        image_url: p.image_url,
+        emoji: CAT_EMOJI[p.category] || '📦',
+        title: p.title,
+        price: p.best_offer?.price,
+        searches: p.best_offer?.score ? `Score ${p.best_offer.score}` : '',
+      }))
+    : MOCK_MAS_BUSCADOS
+
   return (
     <div style={{ padding: '0 28px 32px' }}>
       <SectionHeader title="Más buscados hoy" right="Actualizado hace 12 min" />
       <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
-        {MOCK_MAS_BUSCADOS.map(p => (
+        {items.map(p => (
           <div key={p.id} onClick={() => onSelect(p.id)} style={{
             background: 'var(--card)', border: '1px solid var(--border)',
             borderRadius: 'var(--radius-lg)', padding: 14,
@@ -117,22 +130,20 @@ export function MasBuscados({ onSelect }) {
             onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.08)'}
             onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
           >
-            {/* Top row: rank + badge */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <span style={{
                 background: '#1d1d1f', color: '#fff',
                 fontSize: 11, fontWeight: 700, borderRadius: 6,
                 padding: '2px 8px',
-              }}>{p.rank}</span>
+              }}>#{p.rank}</span>
               <SrcBadge src={p.src} />
             </div>
-            {/* Image placeholder */}
             <ProductImage src={p.image_url} emoji={p.emoji} size={64} />
             <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 6, color: 'var(--text)' }}>{p.title}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, marginBottom: 4 }}>{fmt(p.price)}</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
               <i className="ti ti-search" style={{ fontSize: 11 }} aria-hidden="true" />
-              {p.searches} búsquedas
+              {p.searches}
             </div>
           </div>
         ))}
@@ -142,12 +153,27 @@ export function MasBuscados({ onSelect }) {
 }
 
 /* ── OFERTAS RECIENTES ── */
-export function OfertasRecientes({ onSelect }) {
+export function OfertasRecientes({ onSelect, products = [] }) {
+  // Toma los productos 5-12 para no repetir los de MasBuscados
+  const items = products.length > 5
+    ? products.slice(5, 13).map(p => ({
+        id: p.id,
+        src: p.best_offer?.source,
+        image_url: p.image_url,
+        emoji: CAT_EMOJI[p.category] || '📦',
+        title: p.title,
+        price: p.best_offer?.price,
+        oldPrice: null,
+        disc: null,
+        when: p.best_offer?.shipping_cost === 0 ? 'Envío gratis' : '',
+      }))
+    : MOCK_RECENT_OFFERS
+
   return (
     <div style={{ padding: '0 28px 32px' }}>
       <SectionHeader title="Puestos en oferta" right="Bajaron de precio hoy" />
       <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
-        {MOCK_RECENT_OFFERS.map(o => (
+        {items.map(o => (
           <div key={o.id} onClick={() => onSelect(o.id)} style={{
             background: 'var(--card)', border: '1px solid var(--border)',
             borderRadius: 'var(--radius-lg)', padding: 14,
@@ -159,16 +185,16 @@ export function OfertasRecientes({ onSelect }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <SrcBadge src={o.src} />
-              <span style={{
+              {o.disc && <span style={{
                 background: '#1a9e4a', color: '#fff',
                 fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '2px 8px',
-              }}>-{o.disc}%</span>
+              }}>-{o.disc}%</span>}
             </div>
             <ProductImage src={o.image_url} emoji={o.emoji} size={56} />
             <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, marginBottom: 8, color: 'var(--text)' }}>{o.title}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>{fmt(o.price)}</span>
-              <span style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(o.oldPrice)}</span>
+              {o.oldPrice && <span style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(o.oldPrice)}</span>}
             </div>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>{o.when}</div>
           </div>

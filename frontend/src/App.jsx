@@ -15,6 +15,14 @@ export default function App() {
   const { products, loading, agentMsg, setAgentMsg, search } = useSearch()
   const [activeCat, setActiveCat] = useState('todos')
   const [selectedBanco, setSelectedBanco] = useState(null)
+  function handleSetCat(cat) {
+    setActiveCat(cat)
+    if (cat !== 'todos') {
+      setTimeout(() => {
+        document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 80)
+    }
+  }
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -47,15 +55,15 @@ export default function App() {
 
       <SearchBar onSearch={search} onSetAgent={setAgentMsg} />
 
-      <Filters activeCat={activeCat} onSetCat={setActiveCat} />
+      <Filters activeCat={activeCat} onSetCat={handleSetCat} />
 
       <AgentBar message={agentMsg} />
 
       {/* BLOQUE 1: Más buscados */}
-      <MasBuscados onSelect={openProduct} />
+      <MasBuscados onSelect={openProduct} products={products} />
 
       {/* BLOQUE 2: Puestos en oferta (arriba de promos) */}
-      <OfertasRecientes onSelect={openProduct} />
+      <OfertasRecientes onSelect={openProduct} products={products} />
 
       {/* BLOQUE 3: Promos bancarias */}
       <BancoPromos selectedBanco={selectedBanco} onSelectBanco={handleSelectBanco} />
@@ -64,10 +72,12 @@ export default function App() {
       <TopCategoria onSelect={openProduct} />
 
       {/* BLOQUE 5: Grilla principal */}
-      {loading
-        ? <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '40px 20px', fontSize: 13 }}>Buscando...</p>
-        : <ProductGrid products={products} activeCat={activeCat} selectedBanco={selectedBanco} onSelect={openProduct} />
-      }
+      <div id="product-grid">
+        {loading
+          ? <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '40px 20px', fontSize: 13 }}>Buscando...</p>
+          : <ProductGrid products={products} activeCat={activeCat} selectedBanco={selectedBanco} onSelect={openProduct} />
+        }
+      </div>
 
       {/* BLOQUE 6: Guía de búsqueda (al final) */}
       <GuiaBusqueda onSearch={search} />
