@@ -205,7 +205,7 @@ export function OfertasRecientes({ onSelect, products = [] }) {
 }
 
 /* ── TOP CATEGORÍA ── */
-export function TopCategoria({ onSelect }) {
+export function TopCategoria({ onSelect, products = [] }) {
   const [cat, setCat] = useState('electronica')
   const CATS = { electronica: 'Electrónica', hogar: 'Hogar', moda: 'Moda' }
   const RANK_STYLE = [
@@ -213,7 +213,28 @@ export function TopCategoria({ onSelect }) {
     { bg: '#9ca3af', tc: '#000' },
     { bg: '#92745a', tc: '#fff' },
   ]
-  const items = MOCK_TOP_CATS[cat] || []
+
+  // Agrupa productos reales por categoría, top 3 por score
+  const byCategory = {}
+  for (const p of products) {
+    const c = p.category
+    if (!byCategory[c]) byCategory[c] = []
+    byCategory[c].push(p)
+  }
+
+  const realItems = products.length > 0
+    ? (byCategory[cat] || []).slice(0, 3).map((p, i) => ({
+        id: p.id, rank: i + 1,
+        src: p.best_offer?.source,
+        image_url: p.image_url,
+        emoji: CAT_EMOJI[p.category] || '📦',
+        title: p.title,
+        price: p.best_offer?.price,
+        meta: p.brand || '',
+      }))
+    : null
+
+  const items = realItems || MOCK_TOP_CATS[cat] || []
 
   return (
     <div style={{ padding: '0 28px 32px' }}>

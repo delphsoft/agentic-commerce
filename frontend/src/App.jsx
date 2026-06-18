@@ -69,7 +69,7 @@ export default function App() {
       <BancoPromos selectedBanco={selectedBanco} onSelectBanco={handleSelectBanco} />
 
       {/* BLOQUE 4: Top categoría */}
-      <TopCategoria onSelect={openProduct} />
+      <TopCategoria onSelect={openProduct} products={products} />
 
       {/* BLOQUE 5: Grilla principal */}
       <div id="product-grid">
