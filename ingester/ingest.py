@@ -7,6 +7,7 @@ from scrapers.serpapi_shopping import search_products as serpapi_search
 from scrapers.meli_oauth import search_products as meli_search
 from scrapers.gmb import enrich_offer_with_gmb
 from scorer import score_offers
+from embeddings import generate_embedding, build_product_text
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
@@ -14,11 +15,52 @@ HAS_SERPAPI = bool(os.environ.get("SERPAPI_KEY"))
 HAS_MELI = bool(os.environ.get("MELI_ACCESS_TOKEN"))
 
 DEFAULT_QUERIES = {
-    "electronica":  ["auriculares inalambricos", "smart tv 55 pulgadas", "notebook i5", "parlante bluetooth"],
-    "celulares":    ["celular samsung galaxy", "iphone 15", "motorola edge", "xiaomi redmi"],
-    "hogar":        ["heladera no frost", "aire acondicionado split 3000", "lavarropas automatico"],
-    "moda":         ["zapatillas running hombre", "zapatillas urbanas mujer"],
-    "computacion":  ["monitor 24 pulgadas", "teclado mecanico", "mouse gamer"],
+    "electronica": [
+        "auriculares inalambricos bluetooth", "auriculares gamer", "parlante bluetooth portatil",
+        "smart tv 55 pulgadas 4k", "smart tv 50 pulgadas", "smart tv 43 pulgadas",
+        "camara de seguridad wifi", "proyector full hd", "soundbar bluetooth",
+        "drone camara", "consola playstation", "consola xbox",
+    ],
+    "celulares": [
+        "celular samsung galaxy a", "celular samsung galaxy s",
+        "iphone 15", "iphone 14", "iphone 13",
+        "motorola edge", "motorola moto g", "motorola razr",
+        "xiaomi redmi note", "xiaomi poco",
+        "celular android 5g", "smartphone libre desbloqueado",
+    ],
+    "hogar": [
+        "heladera no frost 400 litros", "heladera combi",
+        "aire acondicionado split 3000 frigorias", "aire acondicionado 4500 frigorias",
+        "lavarropas automatico carga frontal", "lavarropas carga superior",
+        "microondas digital", "cocina 4 hornallas",
+        "aspiradora robot", "lavavajillas",
+        "cafetera espresso", "purificador de aire",
+    ],
+    "moda": [
+        "zapatillas running hombre nike", "zapatillas running mujer adidas",
+        "zapatillas urbanas hombre", "zapatillas urbanas mujer",
+        "botinetas cuero mujer", "zapatillas deportivas",
+        "ropa deportiva hombre", "campera invierno",
+    ],
+    "computacion": [
+        "notebook lenovo i5", "notebook hp pavilion", "notebook asus",
+        "monitor 24 pulgadas full hd", "monitor gamer 144hz",
+        "teclado mecanico gamer", "mouse gamer inalambrico",
+        "disco ssd 1tb", "memoria ram 16gb ddr4",
+        "webcam full hd", "impresora multifuncion",
+        "tablet android", "ipad",
+    ],
+    "electrodomesticos": [
+        "licuadora", "batidora", "tostadora",
+        "plancha ropa", "secador de pelo",
+        "ventilador de pie", "calefactor electrico",
+        "pava electrica", "freidora de aire",
+    ],
+    "herramientas": [
+        "taladro inalambrico", "amoladora angular",
+        "sierra circular", "compresor de aire",
+        "kit herramientas", "nivel laser",
+    ],
 }
 
 
@@ -30,19 +72,34 @@ def upsert_product(sb, offer):
     title = offer.get("title", "").strip()
     if not title:
         return None
-    existing = sb.table("products").select("id, image_url").eq("title", title).limit(1).execute()
+    existing = sb.table("products").select("id, image_url, category").eq("title", title).limit(1).execute()
     if existing.data:
         pid = existing.data[0]["id"]
+        updates = {}
         if offer.get("image_url") and not existing.data[0].get("image_url"):
-            sb.table("products").update({"image_url": offer["image_url"]}).eq("id", pid).execute()
+            updates["image_url"] = offer["image_url"]
+        if offer.get("category") and not existing.data[0].get("category"):
+            updates["category"] = offer["category"]
+        if updates:
+            sb.table("products").update(updates).eq("id", pid).execute()
         return pid
-    result = sb.table("products").insert({
+
+    product_text = build_product_text(offer)
+    embedding = generate_embedding(product_text)
+
+    insert_data = {
         "title": title,
         "brand": offer.get("brand", ""),
         "category": offer.get("category", ""),
         "image_url": offer.get("image_url", ""),
-    }).execute()
-    return result.data[0]["id"]
+    }
+    if embedding:
+        insert_data["embedding"] = embedding
+
+    result = sb.table("products").insert(insert_data).execute()
+    pid = result.data[0]["id"]
+    print(f"  [embed] {title[:40]} → {len(embedding) if embedding else 'NO'} dims")
+    return pid
 
 
 def upsert_offer(sb, product_id, offer):
@@ -73,8 +130,7 @@ def ingest_query(sb, query, vertical="default"):
     all_offers = []
 
     if HAS_SERPAPI:
-        results = serpapi_search(query, limit=10)
-        # Asignar categoria segun el vertical buscado
+        results = serpapi_search(query, limit=20)
         for o in results:
             if not o.get("category"):
                 o["category"] = vertical
